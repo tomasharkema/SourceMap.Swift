@@ -76,10 +76,10 @@ enum LinesContext {
       let endIndexPost = (lineColumn + 20) > line.characters.count-1 ? 0 : 20
       let end = line.startIndex.advancedBy(lineColumn).advancedBy(endIndexPost)
 
-      return "\(lineColumn)\n" + line.substringWithRange(start...end) + "\n" + "~".repeatChar(startIndexPre == 0 ? 0 : 20) + "^"
+      return "column: \(lineColumn)\n\n" + line.substringWithRange(start...end) + "\n" + "~".repeatChar(startIndexPre == 0 ? 0 : 20) + "^"
 
     case let .Lines(lines, lineOffset, lineColumn):
-      return "\(lineOffset),\(lineColumn)\n" + lines.enumerate().map { idx, line -> String in
+      return "column: \(lineColumn)\n\n" + lines.enumerate().map { idx, line -> String in
         let normalizedString = line.stringByReplacingOccurrencesOfString("\t", withString: " ")
 
         if lineOffset == idx {
@@ -101,12 +101,11 @@ struct MappingContext {
     var string = ""
 
     // source part
-    string += "Source: \(symbolName ?? "")\n\n"
+    string += "Source: symbol \(symbolName ?? "")\n\n"
     string += sourceLines.presentation()
 
     // generated part:
     string += "\n\nGenerated: \n\n"
-
     string += generatedLines.presentation()
 
 
@@ -193,16 +192,12 @@ struct SourceMap {
   }
 
   func contextForMapping(mapping: Mapping) -> MappingContext {
-
-    let generatedLine = mapping.generatedLine
-    let sourceLine = mapping.sourceLine
-
     let generatedLinesContext = lineContext(generatedType, lines: generatedLines, line: mapping.generatedLine, column: mapping.generatedColumn)
 
     let sourceLinesContext = lineContext(sourceType, lines: sourceLines, line: mapping.sourceLine, column: mapping.sourceColumn)
 
     return MappingContext(generatedLines: generatedLinesContext,
-      sourceLines: sourceLinesContext, symbolName:  mapping.name.flatMap{names[safe: $0]})
+      sourceLines: sourceLinesContext, symbolName: mapping.name.flatMap{names[safe: $0]})
   }
 
 }

@@ -67,11 +67,14 @@ let regenerateMappings = sourceMap.regenerateMappings()
 
 print("Regenerated Mappings")
 
-for (idx, map) in regenerateMappings.enumerate() {
-  print("\(idx)\n")
-  if let map = map {
-    let context = sourceMap.contextForMapping(map)
-    print(context.presentation)
+regenerateMappings.lazy
+  .map { elem in elem.map { sourceMap.contextForMapping($0) } }
+  .filter { $0 != nil }
+  .map { $0!.presentation  }
+  .enumerate()
+  .forEach {
+    print("#\($0.index): \n")
+    print($0.element)
     print("\n\n==================\n\n")
   }
-}
+
